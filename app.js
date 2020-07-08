@@ -31,14 +31,37 @@ const addDepartment = () => {
         console.log(departmentData);
         connection.query('INSERT INTO department SET ?', departmentData, err => {
             if (err) throw err;
-            console.log('Successfully added department!');
+            console.log(`Successfully added department ${departmentData.name}!`);
             init();
         });
     });
 };
 
 const addRole = () => {
-
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'title',
+            message: 'Please enter the job title associated with the new role:'
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'Please enter the salary of the new role:'
+        },
+        {
+            type: 'input',
+            name: 'department_id',
+            message: 'Please enter the id of the department that contains your role:'
+        }
+    ]).then(roleData => {
+        console.log(roleData);
+        connection.query('INSERT INTO role SET ?', roleData, err => {
+            if (err) throw err;
+            console.log(`Successfully added role ${roleData.title}!`);
+            init();
+        });
+    });
 }
 
 const init = () => {
