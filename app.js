@@ -17,7 +17,35 @@ const connection = mysql.createConnection({
 });
 
 const addEmployee = () => {
-
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'first_name',
+            message: 'Please enter the first name of the new employee:'
+        },
+        {
+            type: 'input',
+            name: 'last_name',
+            message: 'Please enter the last name of the new employee:'
+        },
+        {
+            type: 'input',
+            name: 'role_id',
+            message: 'Please enter the id of the role that your new employee has:'
+        },
+        {
+            type: 'input',
+            name: 'manager_id',
+            message: 'Please enter the id of this employee\'s manager (if applicable):'
+        }
+    ]).then(employeeData => {
+        console.log(employeeData);
+        connection.query('INSERT INTO employee SET ?', employeeData, err => {
+            if (err) throw err;
+            console.log(`Successfully added employee ${employeeData.first_name} ${employeeData.last_name}!`);
+            init();
+        });
+    });
 }
 
 const addDepartment = () => {
@@ -31,14 +59,37 @@ const addDepartment = () => {
         console.log(departmentData);
         connection.query('INSERT INTO department SET ?', departmentData, err => {
             if (err) throw err;
-            console.log('Successfully added department!');
+            console.log(`Successfully added department ${departmentData.name}!`);
             init();
         });
     });
 };
 
 const addRole = () => {
-
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'title',
+            message: 'Please enter the job title associated with the new role:'
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'Please enter the salary of the new role:'
+        },
+        {
+            type: 'input',
+            name: 'department_id',
+            message: 'Please enter the id of the department that contains your role:'
+        }
+    ]).then(roleData => {
+        console.log(roleData);
+        connection.query('INSERT INTO role SET ?', roleData, err => {
+            if (err) throw err;
+            console.log(`Successfully added role ${roleData.title}!`);
+            init();
+        });
+    });
 }
 
 const init = () => {
