@@ -16,6 +16,31 @@ const connection = mysql.createConnection({
   database: "employeeTrackerDB"
 });
 
+const addEmployee = () => {
+
+}
+
+const addDepartment = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'name',
+            message: 'Please enter the name of the new department:'
+        }
+    ]).then(departmentData => {
+        console.log(departmentData);
+        connection.query('INSERT INTO department SET ?', departmentData, err => {
+            if (err) throw err;
+            console.log('Successfully added department!');
+            init();
+        });
+    });
+};
+
+const addRole = () => {
+
+}
+
 const init = () => {
     inquirer.prompt([
         {
@@ -32,42 +57,54 @@ const init = () => {
                 'Update an employee manager',
                 'Add a new role',
                 'View all roles',
-                'Add a new deparment',
+                'Add a new department',
                 'View all departments'
             ]
         }
     ]).then(data => {
         switch (data.userAction) {
             case 'View all employees':
+                showEmployees();
                 break;
             case 'View all employees by department':
+                showEmployees();
                 break;
             case 'View all employees by role':
+                showEmployees();
                 break;
             case 'Add a new employee':
                 addEmployee();
                 break;
-            case 'Remove an emlpoyee':
+            case 'Remove an employee':
+                deleteEmployee();
                 break;
             case 'Update an employee role':
+                updateEmployee();
                 break;
             case 'Update an employee manager':
+                updateEmployee();
                 break;
             case 'Add a new role':
+                addRole();
                 break;
             case 'View all roles':
+                showRoles();
                 break;
             case 'Add a new department':
+                addDepartment();
                 break;
             case 'View all departments':
+                showDepartments();
                 break;
+            default:
+                connection.end();
         }
         console.log(data.userAction);
     });
 };
 
 // connect to the mysql server and sql database
-connection.connect(function(err) {
+connection.connect(err => {
   if (err) throw err;
   // run the start function after the connection is made to prompt the user
   init();
