@@ -46,7 +46,7 @@ const addEmployee = () => {
             init();
         });
     });
-}
+};
 
 const addDepartment = () => {
     inquirer.prompt([
@@ -90,7 +90,7 @@ const addRole = () => {
             init();
         });
     });
-}
+};
 
 const init = () => {
     inquirer.prompt([
