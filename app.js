@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const cTable = require("console.table");
 
 // create the connection information for the sql database
 const connection = mysql.createConnection({
@@ -15,6 +16,30 @@ const connection = mysql.createConnection({
   password: "ferial08",
   database: "employeeTrackerDB"
 });
+
+const showEmployees = () => {
+    connection.query('SELECT * FROM employee', (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+    });
+};
+
+const showEmployeesByRole = () => {
+    connection.query('SELECT * FROM employee LEFT JOIN role ON employee.role_id = role.id ORDER BY role.title;', (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+    });
+};
+
+const showEmployeesByManager = () => {
+    connection.query('SELECT A.id, A.first_name AS Emp_First_Name, A.last_name as Emp_Last_Name, A.role_id, B.first_name AS Mgr_First_Name, B.last_name AS Mgr_Last_Name FROM employee A, employee B WHERE A.manager_id = B.id ORDER BY Mgr_Last_Name;', (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+    });
+};
 
 const addEmployee = () => {
     inquirer.prompt([
@@ -48,23 +73,6 @@ const addEmployee = () => {
     });
 };
 
-const addDepartment = () => {
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'name',
-            message: 'Please enter the name of the new department:'
-        }
-    ]).then(departmentData => {
-        console.log(departmentData);
-        connection.query('INSERT INTO department SET ?', departmentData, err => {
-            if (err) throw err;
-            console.log(`Successfully added department ${departmentData.name}!`);
-            init();
-        });
-    });
-};
-
 const addRole = () => {
     inquirer.prompt([
         {
@@ -92,6 +100,48 @@ const addRole = () => {
     });
 };
 
+
+const showRoles = () => {
+    connection.query('SELECT * FROM role', (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+    });
+};
+
+const addDepartment = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'name',
+            message: 'Please enter the name of the new department:'
+        }
+    ]).then(departmentData => {
+        console.log(departmentData);
+        connection.query('INSERT INTO department SET ?', departmentData, err => {
+            if (err) throw err;
+            console.log(`Successfully added department ${departmentData.name}!`);
+            init();
+        });
+    });
+};
+
+const showDepartments = () => {
+    connection.query('SELECT * FROM department', (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+    });
+};
+
+const getBudgetByDepartment = () => {
+    connection.query('SELECT * FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id ORDER BY department.name', (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+    })
+};
+
 const init = () => {
     inquirer.prompt([
         {
@@ -100,8 +150,8 @@ const init = () => {
             message: 'What would you like to do?',
             choices: [
                 'View all employees',
-                'View all employees by department',
                 'View all employees by role',
+                'View all employees by manager',
                 'Add a new employee',
                 'Remove an employee',
                 'Update an employee role',
@@ -109,7 +159,9 @@ const init = () => {
                 'Add a new role',
                 'View all roles',
                 'Add a new department',
-                'View all departments'
+                'View all departments',
+                'Get budget by department',
+                'Exit'
             ]
         }
     ]).then(data => {
@@ -117,11 +169,11 @@ const init = () => {
             case 'View all employees':
                 showEmployees();
                 break;
-            case 'View all employees by department':
-                showEmployees();
-                break;
             case 'View all employees by role':
-                showEmployees();
+                showEmployeesByRole();
+                break;
+            case 'View all employees by manager':
+                showEmployeesByManager();
                 break;
             case 'Add a new employee':
                 addEmployee();
@@ -146,6 +198,9 @@ const init = () => {
                 break;
             case 'View all departments':
                 showDepartments();
+                break;
+            case 'Get budget by department':
+                getBudgetByDepartment();
                 break;
             default:
                 connection.end();
