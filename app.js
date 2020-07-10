@@ -18,15 +18,7 @@ const connection = mysql.createConnection({
 });
 
 const showEmployees = () => {
-    connection.query('SELECT * FROM employee', (err, data) => {
-        if (err) throw err;
-        console.table(data);
-        init();
-    });
-};
-
-const showEmployeesByRole = () => {
-    connection.query('SELECT employee.id AS ID, employee.first_name AS EMPLOYEE_FIRST, employee.last_name AS EMPLOYEE_LAST, role.title AS TITLE, role.salary AS SALARY, role.department_id AS DEPARTMENT_ID FROM employee LEFT JOIN role ON employee.role_id = role.id ORDER BY role.title;', (err, data) => {
+    connection.query('SELECT employee.id AS ID, employee.first_name AS EMPLOYEE_FIRST, employee.last_name AS EMPLOYEE_LAST, role.title AS TITLE, role.salary AS SALARY, role.department_id AS DEPARTMENT_ID FROM employee LEFT JOIN role ON employee.role_id = role.id;', (err, data) => {
         if (err) throw err;
         console.table(data);
         init();
@@ -72,21 +64,30 @@ const addEmployee = () => {
     });
 };
 
-const updateEmployeeRole = () => {
-    connection.query('SELECT id, first_name, last_name, role_id FROM employee', (err, data) => {
-        let employeeList = data;
-        console.log(employeeList);
-    }).then(employeeList => {
+const updateEmployeeRole = callback => {
+    connection.query('SELECT * FROM employee', (err, data) => {
+        if (err) throw err;
+        // let employeeList = data;
+        // console.log(employeeList);
+        callback(data);
         inquirer.prompt([
             {
                 type: 'list',
                 message: 'Which employee would you like to update?',
-                choices: employeeList
+                choices: [data.id],
+                name: 'employee'
+            },
+            {
+                type: 'list',
+                message: 'What role would you like to give that employee?',
+                choices: [data.role_id],
+                name: 'role'
             }
-        ]).then(employee => {
-            connection.query('UPDATE employee SET role_id = ? WHERE id = ?', (err, data) => {
+        ]).then(answers => {
+            connection.query('UPDATE employee SET role_id = ? WHERE id = ?', [answers.role, answers.employee], err => {
                 if (err) throw err;
                 console.log('Successfully changed role for employee 3 to 7!');
+                init();
             });
         })
     })
@@ -120,7 +121,7 @@ const addRole = () => {
 
 
 const showRoles = () => {
-    connection.query('SELECT * FROM role', (err, data) => {
+    connection.query('SELECT role.id AS ID, role.title AS TITLE, role.salary AS SALARY, department.name AS DEPARTMENT_NAME FROM role LEFT JOIN department ON role.department_id = department.id', (err, data) => {
         if (err) throw err;
         console.table(data);
         init();
@@ -168,7 +169,6 @@ const init = () => {
             message: 'What would you like to do?',
             choices: [
                 'View all employees',
-                'View all employees by role',
                 'View all employees by manager',
                 'Add a new employee',
                 'Remove an employee',
@@ -186,9 +186,6 @@ const init = () => {
         switch (data.userAction) {
             case 'View all employees':
                 showEmployees();
-                break;
-            case 'View all employees by role':
-                showEmployeesByRole();
                 break;
             case 'View all employees by manager':
                 showEmployeesByManager();
