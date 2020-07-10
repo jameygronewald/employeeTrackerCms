@@ -26,7 +26,7 @@ const showEmployees = () => {
 };
 
 const showEmployeesByRole = () => {
-    connection.query('SELECT * FROM employee LEFT JOIN role ON employee.role_id = role.id ORDER BY role.title;', (err, data) => {
+    connection.query('SELECT employee.id AS ID, employee.first_name AS EMPLOYEE_FIRST, employee.last_name AS EMPLOYEE_LAST, role.title AS TITLE, role.salary AS SALARY, role.department_id AS DEPARTMENT_ID FROM employee LEFT JOIN role ON employee.role_id = role.id ORDER BY role.title;', (err, data) => {
         if (err) throw err;
         console.table(data);
         init();
