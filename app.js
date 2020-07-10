@@ -64,7 +64,6 @@ const addEmployee = () => {
             message: 'Please enter the id of this employee\'s manager (if applicable):'
         }
     ]).then(employeeData => {
-        console.log(employeeData);
         connection.query('INSERT INTO employee SET ?', employeeData, err => {
             if (err) throw err;
             console.log(`Successfully added employee ${employeeData.first_name} ${employeeData.last_name}!`);
@@ -72,6 +71,26 @@ const addEmployee = () => {
         });
     });
 };
+
+const updateEmployeeRole = () => {
+    connection.query('SELECT id, first_name, last_name, role_id FROM employee', (err, data) => {
+        let employeeList = data;
+        console.log(employeeList);
+    }).then(employeeList => {
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Which employee would you like to update?',
+                choices: employeeList
+            }
+        ]).then(employee => {
+            connection.query('UPDATE employee SET role_id = ? WHERE id = ?', (err, data) => {
+                if (err) throw err;
+                console.log('Successfully changed role for employee 3 to 7!');
+            });
+        })
+    })
+}
 
 const addRole = () => {
     inquirer.prompt([
@@ -91,7 +110,6 @@ const addRole = () => {
             message: 'Please enter the id of the department that contains your role:'
         }
     ]).then(roleData => {
-        console.log(roleData);
         connection.query('INSERT INTO role SET ?', roleData, err => {
             if (err) throw err;
             console.log(`Successfully added role ${roleData.title}!`);
@@ -135,7 +153,7 @@ const showDepartments = () => {
 };
 
 const getBudgetByDepartment = () => {
-    connection.query('SELECT * FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id ORDER BY department.name', (err, data) => {
+    connection.query('SELECT department.name AS DEPARTMENT, SUM(role.salary) AS DEPARTMENT_BUDGET FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id GROUP BY department.name', (err, data) => {
         if (err) throw err;
         console.table(data);
         init();
@@ -182,10 +200,10 @@ const init = () => {
                 deleteEmployee();
                 break;
             case 'Update an employee role':
-                updateEmployee();
+                updateEmployeeRole();
                 break;
             case 'Update an employee manager':
-                updateEmployee();
+                updateEmployeeManager();
                 break;
             case 'Add a new role':
                 addRole();
