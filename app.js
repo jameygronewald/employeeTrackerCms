@@ -73,31 +73,39 @@ const addEmployee = () => {
 };
 
 const updateEmployeeRole = () => {
-    connection.query('SELECT * FROM employee', (err, data) => {
+    connection.query('SELECT * FROM employee', (err, eData) => {
         if (err) throw err;
-        let dataNames = data.map(employee => employee.first_name);
-        inquirer.prompt([
-            {
-                type: 'list',
-                message: 'Which employee would you like to update?',
-                choices: dataNames,
-                name: 'employee'
-            },
-            {
-                type: 'list',
-                message: 'What role would you like to give that employee?',
-                choices: roleId,
-                name: 'role'
-            }
-        ]).then(answers => {
-            connection.query('UPDATE employee SET role_id = ? WHERE id = ?', [answers.role, answers.employee], err => {
-                if (err) throw err;
-                console.log('Successfully changed role for employee 3 to 7!');
-                init();
+        let employeeChoices = eData.map(employee => `${employee.id}. ${employee.first_name} ${employee.last_name}`);
+        connection.query('SELECT role.id, role.title FROM role', (err, roleData) => {
+            if (err) throw err;
+            let titles = roleData.map(role => `${role.id}. ${role.title}`);
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    message: 'Which employee would you like to update?',
+                    choices: employeeChoices,
+                    name: 'employee'
+                },
+                {
+                    type: 'list',
+                    message: 'What role would you like to give that employee?',
+                    choices: titles,
+                    name: 'title'
+                }
+            ]).then(answers => {
+                let employeeId = answers.employee.slice(0, 1);
+                let roleId = answers.title.slice(0, 1);
+                let employeeName = answers.employee.slice(3);
+                let employeeTitle = answers.title.slice(3);
+                connection.query('UPDATE employee SET role_id = ? WHERE id = ?', [roleId, employeeId], err => {
+                    if (err) throw err;
+                    console.log(`Successfully changed ${employeeName}'s title to ${employeeTitle}!`);
+                    init();
+                });
             });
-        })
-    })
-}
+        });
+    });
+};
 
 const addRole = () => {
     inquirer.prompt([
