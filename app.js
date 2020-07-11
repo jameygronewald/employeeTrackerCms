@@ -72,13 +72,36 @@ const addEmployee = () => {
     });
 };
 
+const deleteEmployee = () => {
+    connection.query('SELECT * FROM employee', (err, eData) => {
+        if (err) throw err;
+        let employeeChoices = eData.map(employee => `${employee.id}  ${employee.first_name} ${employee.last_name}`);
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Which employee would you like to remove from the database?',
+                choices: employeeChoices,
+                name: 'employee'
+            }
+        ]).then(answers => {
+            let employeeId = answers.employee.slice(0, 2);
+            let employeeName = answers.employee.slice(3);
+            connection.query('DELETE FROM employee WHERE id = ?', [employeeId], err => {
+                if (err) throw err;
+                console.log(`${employeeName} has been removed from the database.`);
+                init();
+            });
+        });
+    });
+};
+
 const updateEmployeeRole = () => {
     connection.query('SELECT * FROM employee', (err, eData) => {
         if (err) throw err;
-        let employeeChoices = eData.map(employee => `${employee.id}. ${employee.first_name} ${employee.last_name}`);
+        let employeeChoices = eData.map(employee => `${employee.id}  ${employee.first_name} ${employee.last_name}`);
         connection.query('SELECT role.id, role.title FROM role', (err, roleData) => {
             if (err) throw err;
-            let titles = roleData.map(role => `${role.id}. ${role.title}`);
+            let titles = roleData.map(role => `${role.id}  ${role.title}`);
             inquirer.prompt([
                 {
                     type: 'list',
@@ -93,8 +116,8 @@ const updateEmployeeRole = () => {
                     name: 'title'
                 }
             ]).then(answers => {
-                let employeeId = answers.employee.slice(0, 1);
-                let roleId = answers.title.slice(0, 1);
+                let employeeId = answers.employee.slice(0, 2);
+                let roleId = answers.title.slice(0, 2);
                 let employeeName = answers.employee.slice(3);
                 let employeeTitle = answers.title.slice(3);
                 connection.query('UPDATE employee SET role_id = ? WHERE id = ?', [roleId, employeeId], err => {
@@ -110,40 +133,32 @@ const updateEmployeeRole = () => {
 const updateEmployeeManager = () => {
     connection.query('SELECT * FROM employee', (err, eData) => {
         if (err) throw err;
-        let employeeChoices = eData.map(employee => `${employee.id}. ${employee.first_name} ${employee.last_name}`);
-        /* connection.query(
-            `SELECT employee.id AS ID, employee.first_name AS EMPLOYEE_FIRST, employee.last_name AS EMPLOYEE_LAST, role.department_id AS DEPARTMENT_ID 
-            FROM employee 
-            LEFT JOIN role ON employee.role_id = role.id;`, (err, managerData) => {
-            if (err) throw err;
-            console.log(managerData);
-            let managers = managerData.reduce(manager => `${role.id}. ${role.title}`); */
-            inquirer.prompt([
-                {
-                    type: 'list',
-                    message: 'Which employee would you like to update?',
-                    choices: employeeChoices,
-                    name: 'employee'
-                },
-                {
-                    type: 'list',
-                    message: 'Which manager would you like to assign to that employee?',
-                    choices: employeeChoices,
-                    name: 'manager'
-                }
-            ]).then(answers => {
-                let employeeId = answers.employee.slice(0, 1);
-                let managerId = answers.manager.slice(0, 1);
-                let employeeName = answers.employee.slice(3);
-                let employeeManager = answers.manager.slice(3);
-                connection.query('UPDATE employee SET manager_id = ? WHERE id = ?', [managerId, employeeId], err => {
-                    if (err) throw err;
-                    console.log(`Successfully changed ${employeeName}'s manager to ${employeeManager}!`);
-                    init();
-                });
+        let employeeChoices = eData.map(employee => `${employee.id}  ${employee.first_name} ${employee.last_name}`);
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Which employee would you like to update?',
+                choices: employeeChoices,
+                name: 'employee'
+            },
+            {
+                type: 'list',
+                message: 'Which manager would you like to assign to that employee?',
+                choices: employeeChoices,
+                name: 'manager'
+            }
+        ]).then(answers => {
+            let employeeId = answers.employee.slice(0, 2);
+            let managerId = answers.manager.slice(0, 2);
+            let employeeName = answers.employee.slice(3);
+            let employeeManager = answers.manager.slice(3);
+            connection.query('UPDATE employee SET manager_id = ? WHERE id = ?', [managerId, employeeId], err => {
+                if (err) throw err;
+                console.log(`Successfully changed ${employeeName}'s manager to ${employeeManager}!`);
+                init();
             });
         });
-    /* }); */
+    });
 };
 
 const addRole = () => {
@@ -215,7 +230,7 @@ const getBudgetByDepartment = () => {
         if (err) throw err;
         console.table(data);
         init();
-    })
+    });
 };
 
 const init = () => {
