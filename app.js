@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
+// const functions = require("./lib/functions")
 
 // create the connection information for the sql database
 const connection = mysql.createConnection({
@@ -18,7 +19,10 @@ const connection = mysql.createConnection({
 });
 
 const showEmployees = () => {
-    connection.query('SELECT employee.id AS ID, employee.first_name AS EMPLOYEE_FIRST, employee.last_name AS EMPLOYEE_LAST, role.title AS TITLE, role.salary AS SALARY, role.department_id AS DEPARTMENT_ID FROM employee LEFT JOIN role ON employee.role_id = role.id;', (err, data) => {
+    connection.query(
+        `SELECT employee.id AS ID, employee.first_name AS EMPLOYEE_FIRST, employee.last_name AS EMPLOYEE_LAST, role.title AS TITLE, role.salary AS SALARY, role.department_id AS DEPARTMENT_ID 
+        FROM employee 
+        LEFT JOIN role ON employee.role_id = role.id;`, (err, data) => {
         if (err) throw err;
         console.table(data);
         init();
@@ -26,7 +30,11 @@ const showEmployees = () => {
 };
 
 const showEmployeesByManager = () => {
-    connection.query('SELECT A.id, A.first_name AS Emp_First_Name, A.last_name as Emp_Last_Name, A.role_id, B.first_name AS Mgr_First_Name, B.last_name AS Mgr_Last_Name FROM employee A, employee B WHERE A.manager_id = B.id ORDER BY Mgr_Last_Name;', (err, data) => {
+    connection.query(
+    `SELECT A.id AS ID, A.first_name AS EMPLOYEE_FIRST_NAME, A.last_name as EMPLOYEE_LAST_NAME, B.first_name AS MANAGER_FIRST_NAME, B.last_name AS MANAGER_LAST_NAME 
+    FROM employee A, employee B 
+    WHERE A.manager_id = B.id 
+    ORDER BY MANAGER_LAST_NAME;`, (err, data) => {
         if (err) throw err;
         console.table(data);
         init();
@@ -64,23 +72,21 @@ const addEmployee = () => {
     });
 };
 
-const updateEmployeeRole = callback => {
+const updateEmployeeRole = () => {
     connection.query('SELECT * FROM employee', (err, data) => {
         if (err) throw err;
-        // let employeeList = data;
-        // console.log(employeeList);
-        callback(data);
+        let dataNames = data.map(employee => employee.first_name);
         inquirer.prompt([
             {
                 type: 'list',
                 message: 'Which employee would you like to update?',
-                choices: [data.id],
+                choices: dataNames,
                 name: 'employee'
             },
             {
                 type: 'list',
                 message: 'What role would you like to give that employee?',
-                choices: [data.role_id],
+                choices: roleId,
                 name: 'role'
             }
         ]).then(answers => {
@@ -121,7 +127,11 @@ const addRole = () => {
 
 
 const showRoles = () => {
-    connection.query('SELECT role.id AS ID, role.title AS TITLE, role.salary AS SALARY, department.name AS DEPARTMENT_NAME FROM role LEFT JOIN department ON role.department_id = department.id', (err, data) => {
+    connection.query(
+        `SELECT role.id AS ID, role.title AS TITLE, role.salary AS SALARY, department.name AS DEPARTMENT_NAME 
+        FROM role 
+        LEFT JOIN department 
+        ON role.department_id = department.id`, (err, data) => {
         if (err) throw err;
         console.table(data);
         init();
@@ -146,7 +156,7 @@ const addDepartment = () => {
 };
 
 const showDepartments = () => {
-    connection.query('SELECT * FROM department', (err, data) => {
+    connection.query('SELECT id AS ID, name AS DEPARTMENT FROM department', (err, data) => {
         if (err) throw err;
         console.table(data);
         init();
@@ -220,7 +230,6 @@ const init = () => {
             default:
                 connection.end();
         }
-        console.log(data.userAction);
     });
 };
 
@@ -230,4 +239,3 @@ connection.connect(err => {
   // run the start function after the connection is made to prompt the user
   init();
 });
-
