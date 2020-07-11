@@ -107,6 +107,45 @@ const updateEmployeeRole = () => {
     });
 };
 
+const updateEmployeeManager = () => {
+    connection.query('SELECT * FROM employee', (err, eData) => {
+        if (err) throw err;
+        let employeeChoices = eData.map(employee => `${employee.id}. ${employee.first_name} ${employee.last_name}`);
+        /* connection.query(
+            `SELECT employee.id AS ID, employee.first_name AS EMPLOYEE_FIRST, employee.last_name AS EMPLOYEE_LAST, role.department_id AS DEPARTMENT_ID 
+            FROM employee 
+            LEFT JOIN role ON employee.role_id = role.id;`, (err, managerData) => {
+            if (err) throw err;
+            console.log(managerData);
+            let managers = managerData.reduce(manager => `${role.id}. ${role.title}`); */
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    message: 'Which employee would you like to update?',
+                    choices: employeeChoices,
+                    name: 'employee'
+                },
+                {
+                    type: 'list',
+                    message: 'Which manager would you like to assign to that employee?',
+                    choices: employeeChoices,
+                    name: 'manager'
+                }
+            ]).then(answers => {
+                let employeeId = answers.employee.slice(0, 1);
+                let managerId = answers.manager.slice(0, 1);
+                let employeeName = answers.employee.slice(3);
+                let employeeManager = answers.manager.slice(3);
+                connection.query('UPDATE employee SET manager_id = ? WHERE id = ?', [managerId, employeeId], err => {
+                    if (err) throw err;
+                    console.log(`Successfully changed ${employeeName}'s manager to ${employeeManager}!`);
+                    init();
+                });
+            });
+        });
+    /* }); */
+};
+
 const addRole = () => {
     inquirer.prompt([
         {
