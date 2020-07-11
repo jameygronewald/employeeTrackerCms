@@ -10,7 +10,7 @@ INSERT INTO employee(first_name, last_name, role_id)
 VALUES ('John', 'Doe', 2), ('Mary', 'Olsen', 5);
 
 INSERT INTO employee(first_name, last_name, role_id, manager_id)
-VALUES ('Bob', 'Smith', 1, 2), ('Nancy', 'Drew', 7, 2), ('Jamey', 'Gronewald', 3, 2), ('Jerry', 'Jones', 4, 1), ('Gracie', 'Olsen', 8, 1), ('Willow', 'Agnes', 6, 2);
+VALUES ('Bob', 'Smith', 1, 2), ('Nancy', 'Drew', 7, 2), ('Jamey', 'Gronewald', 3, 2), ('Jerry', 'Jones', 4, 1), ('Ruby', 'McDaniel', 8, 1), ('Willow', 'Agnes', 6, 2);
 
 SELECT * FROM department;
 SELECT * FROM role;

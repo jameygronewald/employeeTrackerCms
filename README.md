@@ -25,11 +25,12 @@ Once you have repo cloned and dependencies installed, run  ```node app.js``` in 
 ## Demo
 
 ### Video
-[Video Demo]()
+[Video Demo](https://drive.google.com/file/d/1cmPEm7Zzs9FUPRqXuHIpln1ZJ5ukD5LV/view)
 
 ### Screenshots
-![App command line menu]()
-![Table of employees]()
+![App command line menu](./assets/demoImages/appMenu.png)
+![App add prompt](./assets/demoImages/appAddScreen.png)
+![App update menu](./assets/demoImages/appUpdateScreen.png)
 
 ## Contributing
 I am the sole contributor on this project.
